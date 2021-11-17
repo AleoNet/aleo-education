@@ -1,3 +1,9 @@
+/// This is an example of how hangman could be made in Leo. The main function takes in the state of the game (it
+/// will be null if initiating the game), and a selector function to determine whether a game is being setup  or
+/// if the state is being updated by guessing a letter.
+/// Right now there is no functionality to produce or use records, so we manually print the updated state, and
+/// this can be copied into the `.in` file and run again by changin the letter to be guessed (also in `.in).
+
 circuit Hangman {
     commitment: group,
     revealed: [char; 20],
@@ -6,7 +12,7 @@ circuit Hangman {
     victory: bool,
 
     function new_game(word: [char; 20]) -> Self {
-        // We're not actually hashing my word here, we're hashing some constant thing.
+        // We're not actually hashing the word here, we're hashing some constant thing.
         // This will be fixed when more functionality is added
         let hash: group = PedersenHash::new([1group; 256]).hash([true; 256]);
     
@@ -23,7 +29,7 @@ circuit Hangman {
         let valid = true;
 
         // When support for (non-)equality of group elements is available, this check will need to be added.
-        // if  commit_to_word(word, parameters) != self.commitment {
+        // if  commit_to_word(word) != self.commitment {
         //     valid = false;
         // }
         // let valid = false;
@@ -68,7 +74,7 @@ circuit Hangman {
 
 }
 
-// The 'hangman' main function, which selectively runs the game setup or guess_letter action
+// The 'hangman' main function, which selectively runs the game_setup or guess_letter action
 function main(
     selector: bool, 
     word: [char; 20], 
@@ -93,7 +99,7 @@ function main(
     console.log("
         selector: bool = true;
         word: [char; 20] = \"{}\";
-        commitment: group = 1group;
+        commitment: group = 256group;
         revealed: [char; 20] = \"{}\";
         used_guesses: [char; 10] = \"{}\";
         guesses_left: u32 = {};

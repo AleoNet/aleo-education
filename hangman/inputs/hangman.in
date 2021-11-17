@@ -1,8 +1,8 @@
 // The program input for hangman/src/main.leo
 [main]
-selector: bool = true;
+selector: bool = false;
 word: [char; 20] = "aacabababaabaabaacaa";
-commitment: group = 1group;
+commitment: group = 256group;
 revealed: [char; 20] = ['_'; 20];
 used_guesses: [char; 10] = ['_'; 10];
 guesses_left: u32 = 10;
