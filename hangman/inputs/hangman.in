@@ -1,8 +1,9 @@
 // The program input for hangman/src/main.leo
 [main]
-selector: bool = false;
+create_game: bool = true;
 word: [char; 20] = "aacabababaabaabaacaa";
-commitment: group = 256group;
+commitment_x: field = 0field;
+commitment_y: field = 0field;
 revealed: [char; 20] = ['_'; 20];
 used_guesses: [char; 10] = ['_'; 10];
 guesses_left: u32 = 10;
@@ -17,15 +18,17 @@ parameters: [group; 256] = [1group; 256];
 // Saving these here so we can adjust the actual inputs without losing these
 // selector: bool = true;
 // word: [char; 20] = "aacabababaabaabaacaa";
-// commitment: group = 1group;
+// commitment_x: field = 0field;
+// commitment_y: field = 0field;
 // revealed: [char; 20] = ['_'; 20];
 // used_guesses: [char; 10] = ['_'; 10];
 // guesses_left: u32 = 10;
 // victory: bool = false;
 
 [registers]
-r0: group = 0group;
-r1: [char; 20] = ['_'; 20];
-r2: [char; 10] = ['_'; 10];
-r3: u32 = 10;
-r4: bool = false;
+r0: field = 0field;
+r1: field = 0field;
+r2: [char; 20] = ['_'; 20];
+r3: [char; 10] = ['_'; 10];
+r4: u32 = 10;
+r5: bool = false;

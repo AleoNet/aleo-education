@@ -1,3 +1,56 @@
+// A circuit representing a point allong an elliptic curve.
+circuit Point {
+    x: field,
+    y: field,
+
+    // Point negation
+    function ec_negate(mut self) {
+        self.y = -self.y;
+    }
+    
+    // Point addition
+    function ec_add(mut self, q: Point) {
+        let x_p = self.x;
+        let x_q = q.x;
+        let y_p = self.y;
+        let y_q = q.y;
+    
+        let lam = (y_q - y_p) / (x_q - x_p);
+        let x_r = lam * lam - x_p - x_q;
+        let y_r = lam * (x_p - x_r) - y_p;
+    
+        self.x = x_r;
+        self.y = y_r;
+    }
+
+}
+
+// Circuit implementing the Pedersen hash function.
+// Users must supply appropriate parameters to ensure that the resulting
+// hash is a valid point on the desired curve.
+circuit PedersenHash {
+    digest: Point;
+    x_parameters: [field; 256];
+    y_parameters: [field; 256];
+
+    // Instantiates a Pedersen hash circuit
+    function new(digest: Point, const x_parameters: [field; 256], const y_parameters: [field; 256]) -> Self {
+        return Self { digest: digest, x_parameters: x_parameters, y_parameters: y_parameters };
+    }
+
+    // Hashes a 256-bit array to a point on an elliptic curve.
+    function hash(mut self, bits: [bool; 256]) -> Point {
+        for i in 0..256 {
+            if bits[i] {
+                self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
+            }
+        }
+        return self.digest;
+    }
+}
+
+
+
 /// This is an example of how hangman could be made in Leo. The main function takes in the state of the game (it
 /// will be null if initiating the game), and a selector function to determine whether a game is being setup  or
 /// if the state is being updated by guessing a letter.
@@ -5,16 +58,27 @@
 /// this can be copied into the `.in` file and run again by changin the letter to be guessed (also in `.in).
 
 circuit Hangman {
-    commitment: group,
+    commitment: Point,
     revealed: [char; 20],
     used_guesses: [char; 10],
     guesses_left: u32,
     victory: bool,
 
     function new_game(word: [char; 20]) -> Self {
-        // We're not actually hashing the word here, we're hashing some constant thing.
-        // This will be fixed when more functionality is added
-        let hash: group = PedersenHash::new([1group; 256]).hash([true; 256]);
+
+        // Todo: Validate guesses left.
+        
+        // The `zero` group element for Edwards BLS12
+        const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
+
+        // x and y coordiantes corresponding to the `one` group element.
+        const x: field = 7810607721416582242904415504650443951498042435501746664987470571546413371306field;
+        const y: field = 1867362672570137759132108893390349941423731440336755218616442213142473202417field;
+
+        // We're not actually hashing the word here, we're hashing a "bitvector" where all bits are 1
+        // A future release of Leo will have conversions to/from bits.
+        let hasher = PedersenHash::new(digest, [x; 256], [y; 256]);
+        let hash: Point = hasher.hash([true; 256]);
     
         return Self { 
             commitment: hash, 
@@ -74,40 +138,45 @@ circuit Hangman {
 
 }
 
-// The 'hangman' main function, which selectively runs the game_setup or guess_letter action
+// The 'hangman' main function, which selectively creates a new game or runs the `guess_letter` function. 
 function main(
-    selector: bool, 
+    create_game: bool, 
     word: [char; 20], 
-    commitment: group, 
+    commitment_x: field, 
+    commitment_y: field,
     revealed: [char; 20], 
     used_guesses: [char; 10], 
     guesses_left: u32, 
     victory: bool, 
     guess: char
-) -> (group, [char; 20], [char; 10], u32, bool) {
+) -> (field, field, [char; 20], [char; 10], u32, bool) {
+    let commitment = Point {x: commitment_x, y: commitment_y };
     let game = Hangman {commitment, revealed, used_guesses, guesses_left, victory};
-    // The selector bool determines whether we are setting up a game (selector = false),
-    // or whether we are guessing a letter in an existing game (selectore = true).
-    if selector {
-        game = game.guess_letter(word, guess);
-    } else {
+
+    // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
+    // or whether we are guessing a letter in an existing game (create_game = false).
+    if create_game {
         game = Hangman::new_game(word);
+    } else {
+        game = game.guess_letter(word, guess);
     }
 
     // There is not yet functionality to create and consume records in Leo programmes,
     // so instead we just print all the inputs we will need to update the state of the game for now
     console.log("
-        selector: bool = true;
+        create_game: bool = false;
         word: [char; 20] = \"{}\";
-        commitment: group = 256group;
+        commitment_x: field = {};
+        commitment_y: field = {};
         revealed: [char; 20] = \"{}\";
         used_guesses: [char; 10] = \"{}\";
         guesses_left: u32 = {};
         victory: bool = {};", 
-    word, game.revealed, game.used_guesses, game.guesses_left, game.victory);
+    word, game.commitment.x, game.commitment.y, game.revealed, game.used_guesses, game.guesses_left, game.victory);
 
     return (
-        game.commitment, 
+        game.commitment.x, 
+        game.commitment.y,
         game.revealed, 
         game.used_guesses, 
         game.guesses_left, 
@@ -115,31 +184,7 @@ function main(
     );
 }
 
-function commit_to_word(word: [char; 20]) -> group {
-    return PedersenHash::new([1group; 256]).hash([true; 256]);
-}
 
-// We need this hash to make the game work, and we do not want to add it as
-// we would ususally add an import because the online palyground doesn't have 
-// that functionality.
-circuit PedersenHash {
-    parameters: [group; 256],
-
-    // Instantiates a Pedersen hash circuit
-    function new(const parameters: [group; 256]) -> Self {
-        return Self { parameters: parameters };
-    }
-
-    function hash(self, bits: [bool; 256]) -> group {
-        let digest: group = 0group;
-        for i in 0..256 {
-            if bits[i] {
-                digest += self.parameters[i];
-            }
-        }
-        return digest;
-    }
-}
 
 @test
 function  test_main() {
@@ -150,14 +195,15 @@ function  test_main() {
     let check = main(
         true, 
         word, 
-        game.commitment, 
+        game.commitment.x, 
+        game.commitment.y,
         game.revealed, 
         game.used_guesses, 
         game.guesses_left, 
         game.victory, 
         guess
     );
-    let used_guesses = check.2;
+    let used_guesses = check.3;
     console.assert("b_________" == used_guesses);
 }
 
