@@ -64,9 +64,7 @@ circuit Hangman {
     guesses_left: u32,
     victory: bool,
 
-    function new_game(word: [char; 20]) -> Self {
-
-        // Todo: Validate guesses left.
+    function new_game(word: [char; 20], guesses_left: u32) -> Self {
         
         // The `zero` group element for Edwards BLS12
         const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
@@ -84,7 +82,7 @@ circuit Hangman {
             commitment: hash, 
             revealed: ['_'; 20], 
             used_guesses: ['_'; 10], 
-            guesses_left: 10u32, 
+            guesses_left: guesses_left, 
             victory: false
         };
     }
@@ -156,7 +154,7 @@ function main(
     // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
     // or whether we are guessing a letter in an existing game (create_game = false).
     if create_game {
-        game = Hangman::new_game(word);
+        game = Hangman::new_game(word, guesses_left);
     } else {
         game = game.guess_letter(word, guess);
     }
@@ -189,7 +187,7 @@ function main(
 @test
 function  test_main() {
     let word = "aacabababaabaabaacaa";
-    let game = Hangman::new_game(word);
+    let game = Hangman::new_game(word, 3);
     let guess: char = 'b';
 
     let check = main(
