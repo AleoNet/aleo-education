@@ -50,21 +50,47 @@ circuit PedersenHash {
 }
 
 
-
-/// This is an example of how hangman could be made in Leo. The main function takes in the state of the game (it
-/// will be null if initiating the game), and a selector function to determine whether a game is being setup  or
-/// if the state is being updated by guessing a letter.
-/// Right now there is no functionality to produce or use records, so we manually print the updated state, and
-/// this can be copied into the `.in` file and run again by changin the letter to be guessed (also in `.in).
-
+/// We are going to implement a game of Hangman in Leo. 
+/// Before, we start writing code, let's go over some background information and design requirements.
+/// Hangman is a game where a player attempts to guess all characters contained in a word.
+/// A player wins if they are able to guess all characters within the allotted number of guesses. Otherwise, they lose.
+/// 1. In our version of Hangman, words and guesses are restricted to the lowercase English alphabet.
+/// 2. An invalid guess does not use up a guess.
+/// TODO: Explain the purpose of the commitment scheme.
+/// TODO: Explain console statements.
+/// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
+/// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
     commitment: Point,
     revealed: [char; 20],
     used_guesses: [char; 10],
     guesses_left: u32,
     victory: bool,
+    
+
+    // Returns true if `c` is a lowercase English alphabet letter.
+    // Can you reduce the number of constraints required to implement this function?
+    function valid_char(c: char) -> bool {
+        const valid_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+        let is_valid_char = false;
+        for i in 0..26 {
+            if c == valid_chars[i] {
+                is_valid_char = true;
+            }
+        }
+        return is_valid_char;
+    }
 
     function new_game(word: [char; 20], guesses_left: u32) -> Self {
+        // Validate the characters in the word.
+        for i in 0..20 {
+            console.assert(Hangman::valid_char(word[i]) == true);
+        }
+
+        // Number of guesses left cannot be greater than the number of valid characters.
+        console.assert(guesses_left <= 26);
+
         
         // The `zero` group element for Edwards BLS12
         const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
@@ -88,6 +114,13 @@ circuit Hangman {
     }
 
     function guess_letter(self, word: [char; 20], letter: char) -> Self {
+        for i in 0..20 {
+            console.assert(Hangman::valid_char(word[i]) == true);
+        }
+
+        console.assert(self.guesses_left <= 26);
+
+
         let valid = true;
 
         // When support for (non-)equality of group elements is available, this check will need to be added.
@@ -98,6 +131,9 @@ circuit Hangman {
         // if commit_to_word(word) == self.commitment {
         //     valid = true;
         // }
+
+        // Validate guess
+        valid = Hangman::valid_char(letter);
 
         // Check that the letter has not already been guessed
         for i in 0..10 {
@@ -159,7 +195,7 @@ function main(
         game = game.guess_letter(word, guess);
     }
 
-    // There is not yet functionality to create and consume records in Leo programmes,
+    // There is not yet functionality to create and consume records in Leo programs,
     // so instead we just print all the inputs we will need to update the state of the game for now
     console.log("
         create_game: bool = false;
