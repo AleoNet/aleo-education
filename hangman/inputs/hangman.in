@@ -1,7 +1,7 @@
 // The program input for hangman/src/main.leo
 [main]
 create_game: bool = true;
-word: [char; 20] = "aacabababaabaabaacaa";
+word: [char; 20] = "aacabababaabaabdacaa";
 commitment_x: field = 0field;
 commitment_y: field = 0field;
 revealed: [char; 20] = ['_'; 20];
