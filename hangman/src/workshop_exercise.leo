@@ -49,7 +49,7 @@ circuit PedersenHash {
     function hash(mut self, bits: [bool; 256]) -> Point {
         for i in 0..256 {
             if bits[i] {
-                self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
+                self.digest = self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
             }
         }
         return self.digest;

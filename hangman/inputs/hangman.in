@@ -17,7 +17,7 @@ word_length: u32 = 6;
 
 // Saving these here so we can adjust the actual inputs without losing these
 // create_game: bool = true;
-// word: [char; 20] = "aacabababaabaabdacaa";
+// word: [char; 20] = "aleons______________";
 // commitment_x: field = 0field;
 // commitment_y: field = 0field;
 // revealed: [char; 20] = ['_'; 20];
@@ -29,7 +29,7 @@ word_length: u32 = 6;
 // guess: char = 'b';
 
 // [constants]
-// word_length: u32 = 20;
+// word_length: u32 = 6;
 
 [registers]
 r0: field = 0field;
