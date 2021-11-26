@@ -23,10 +23,10 @@ circuit Point {
         self.y = y_r;
     }
 
-    // For example, can you instantiate a point p, and then negate it:
+    //! 111. For example, can you instantiate a point p, and then negate it:
     // let p
 
-    // If you have spare time, why not create another point q and it to p to make r.
+    //! If you have spare time, why not create another point q and it to p to make r.
 
 }
 
@@ -66,37 +66,28 @@ circuit PedersenHash {
 /// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
+    //! 222. What variables should we have to represent the state of the game?
+    //! You can use an array of chars, [char; 20], integers such as u32, and booleans.
     commitment: Point,
-    revealed: [char; 20],
-    used_guesses: [char; 10],
-    guesses_left: u32,
-    victory: bool,
+    // x_2
+    // x_3
+    // x_4
+    // x_5
     
 
     // Returns true if `c` is a lowercase English alphabet letter.
-    // Can you reduce the number of constraints required to implement this function?
     function valid_char(c: char) -> bool {
         const valid_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
+        //! 333. Can you fill in the rest of this function? If the entered char `c' is in `valid_chars', we
+        //! should set `is_valid_char' to true.
         let is_valid_char = false;
-        for i in 0..26 {
-            if c == valid_chars[i] {
-                is_valid_char = true;
-            }
-        }
+
         return is_valid_char;
     }
+    
 
-    function new_game(word: [char; 20], guesses_left: u32) -> Self {
-        // Validate the characters in the word.
-        for i in 0..20 {
-            console.assert(Hangman::valid_char(word[i]) == true);
-        }
-
-        // Number of guesses left cannot be greater than the number of valid characters.
-        console.assert(guesses_left <= 26);
-
-        
+    function new_game(word: [char; 20], const word_length: u32, guesses_left: u32) -> Self {
         // The `zero` group element for Edwards BLS12
         const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
 
@@ -108,27 +99,53 @@ circuit Hangman {
         // A future release of Leo will have conversions to/from bits.
         let hasher = PedersenHash::new(digest, [x; 256], [y; 256]);
         let hash: Point = hasher.hash([true; 256]);
+
+        // Number of guesses left cannot be greater than the maximum.
+        if guesses_left > 10 {
+            hash = Point{x: 0field, y: 0field};
+        }
+
+        // Validate the characters in the word.
+        for i in 0..word_length {
+            if Hangman::valid_char(word[i]) == false {
+                hash = Point{x: 0field, y: 0field};
+            }
+        }
+
+        // Check that word_length is of a valid size
+        if word_length > 20 {
+            hash = Point{x: 0field, y: 0field};
+        }
     
         return Self { 
-            commitment: hash, 
-            revealed: ['_'; 20], 
-            used_guesses: ['_'; 10], 
-            guesses_left: guesses_left, 
-            victory: false
+            //! 444. This is the new_game() function; what should we return from 
+            //! this function to setup the game?
+            // x_1
+            // x_2
+            // x_3
+            // x_4
+            // x_5
         };
     }
 
-    function guess_letter(self, word: [char; 20], letter: char) -> Self {
+    //! 555. Now that we are guessing a letter, what do you think the input should be?
+    //! And the ouput?
+    function guess_letter() ->  {
+        // Assume the guess has been entered correctly, and adjust this assumption if later checks fail
+        let valid = true;
+
         // In future we can directly check if the entered word hashes to the same point as the hash in the game.
         // For now, we are just checking the letters are valid
-        for i in 0..20 {
-            console.assert(Hangman::valid_char(word[i]) == true);
+        for i in 0..word_length {
+            if Hangman::valid_char(word[i]) == false {
+                valid = false;
+            }
         }
 
-        console.assert(self.guesses_left <= 10);
-
-
-        let valid = true;
+        // Number of guesses left cannot be greater than the number of valid characters.
+        if self.guesses_left > 10u32 {
+            valid = false;
+        }
 
         // Validate guessed letter
         valid = Hangman::valid_char(letter);
@@ -150,7 +167,7 @@ circuit Hangman {
         let guesses_left = self.guesses_left;
         // If everything is valid, see where the guessed letter is in the word
         if valid {
-            for i in 0..20 {
+            for i in 0..word_length {
                 if word[i] == letter {
                     revealed[i] = letter;
                 }
@@ -174,6 +191,7 @@ circuit Hangman {
 function main(
     create_game: bool, 
     word: [char; 20], 
+    const word_length: u32,
     commitment_x: field, 
     commitment_y: field,
     revealed: [char; 20], 
@@ -188,26 +206,26 @@ function main(
     // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
     // or whether we are guessing a letter in an existing game (create_game = false).
     if create_game {
-        game = Hangman::new_game(word, guesses_left);
+        game = Hangman::new_game(word, word_length, guesses_left);
     } else {
-        game = game.guess_letter(word, guess);
+        game = game.guess_letter(word, word_length, guess);
     }
 
     // There is not yet functionality to create and consume records in Leo programs,
     // so instead we just print all the inputs we will need to update the state of the game
     console.log("
-        create_game: bool = false;
-        word: [char; 20] = \"{}\";
-        commitment_x: field = {};
-        commitment_y: field = {};
-        revealed: [char; 20] = \"{}\";
-        used_guesses: [char; 10] = \"{}\";
-        guesses_left: u32 = {};
-        victory: bool = {};", 
+create_game: bool = false;
+word: [char; 20] = \"{}\";
+commitment_x: field = {};
+commitment_y: field = {};
+revealed: [char; 20] = \"{}\";
+used_guesses: [char; 10] = \"{}\";
+guesses_left: u32 = {};
+victory: bool = {};", 
     word, game.commitment.x, game.commitment.y, game.revealed, game.used_guesses, game.guesses_left, game.victory);
 
     return (
-        game.commitment.x, 
+        game.commitment.x,
         game.commitment.y,
         game.revealed, 
         game.used_guesses, 
@@ -215,36 +233,3 @@ function main(
         game.victory
     );
 }
-
-
-
-@test
-function  test_main() {
-    let word = "aacabababaabaabaacaa";
-    let game = Hangman::new_game(word, 3);
-    let guess: char = 'b';
-
-    let check = main(
-        true, 
-        word, 
-        game.commitment.x, 
-        game.commitment.y,
-        game.revealed, 
-        game.used_guesses, 
-        game.guesses_left, 
-        game.victory, 
-        guess
-    );
-    let used_guesses = check.3;
-    console.assert("b_________" == used_guesses);
-}
-
-// @test
-// function  test_main() {
-//     let word = "aacabababaabaabaacaa";
-//     let game = Hangman::new_game(word);
-//     let guess: char = 'b';
-
-//     let check = main(true, word, game, guess);
-//     console.assert("b_________" == check.used_guesses);
-// }
