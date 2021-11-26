@@ -4,12 +4,12 @@ circuit Point {
     y: field,
 
     // Point negation
-    function ec_negate(mut self) {
-        self.y = -self.y;
+    function ec_negate(mut self) -> Self {
+        return Self { x: self.x, y: -self.y};
     }
     
     // Point addition
-    function ec_add(mut self, q: Point) {
+    function ec_add(mut self, q: Point) -> Self {
         let x_p = self.x;
         let x_q = q.x;
         let y_p = self.y;
@@ -18,15 +18,17 @@ circuit Point {
         let lam = (y_q - y_p) / (x_q - x_p);
         let x_r = lam * lam - x_p - x_q;
         let y_r = lam * (x_p - x_r) - y_p;
-    
-        self.x = x_r;
-        self.y = y_r;
+
+        return Self {x: x_r, y: y_r};
     }
 
     //! 111. For example, can you instantiate a point p, and then negate it:
-    // let p
+    //! let p
+    //! let minus_p
 
-    //! If you have spare time, why not create another point q and it to p to make r.
+    //! If you have spare time, why not create another point q and add it to p to make r.
+    //! let q
+    //! let r
 
 }
 
@@ -79,11 +81,11 @@ circuit Hangman {
     function valid_char(c: char) -> bool {
         const valid_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
-        //! 333. Can you fill in the rest of this function? If the entered char `c' is in `valid_chars', we
-        //! should set `is_valid_char' to true.
-        let is_valid_char = false;
+        //! 333. Can you fill in the rest of this function? If the entered char `c' is
+        //! in `valid_chars', we should set `is_valid_char' to true.
+        // let is_valid_char = false;
 
-        return is_valid_char;
+        // return is_valid_char;
     }
     
 
@@ -106,11 +108,11 @@ circuit Hangman {
         }
 
         // Validate the characters in the word.
-        for i in 0..word_length {
-            if Hangman::valid_char(word[i]) == false {
-                hash = Point{x: 0field, y: 0field};
-            }
-        }
+        //! 444. We need to check that all the letters in the word are valid. If any
+        //! of them are invalid, we should change the hash to Point{x: 0field, y: 0field};
+        // for i in 0..word_length {
+            
+        // }
 
         // Check that word_length is of a valid size
         if word_length > 20 {
@@ -118,13 +120,11 @@ circuit Hangman {
         }
     
         return Self { 
-            //! 444. This is the new_game() function; what should we return from 
-            //! this function to setup the game?
-            // x_1
-            // x_2
-            // x_3
-            // x_4
-            // x_5
+            commitment: hash, 
+            revealed: ['_'; 20], 
+            used_guesses: ['_'; 10], 
+            guesses_left: 10u32, 
+            victory: false
         };
     }
 
@@ -166,15 +166,11 @@ circuit Hangman {
         let used_guesses = self.used_guesses;
         let guesses_left = self.guesses_left;
         // If everything is valid, see where the guessed letter is in the word
-        if valid {
-            for i in 0..word_length {
-                if word[i] == letter {
-                    revealed[i] = letter;
-                }
-            }
-            used_guesses[10 - guesses_left] = letter;
-            guesses_left -= 1;
-        }
+        //! 555. The player has chosen a letter to see if it is in the word. What 
+        //! variables should we update? Can you fill in the code?
+        // if valid {
+            
+        // }
 
         let victory = self.victory;
         if revealed == word {

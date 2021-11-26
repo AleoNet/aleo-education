@@ -4,12 +4,12 @@ circuit Point {
     y: field,
 
     // Point negation
-    function ec_negate(mut self) {
-        self.y = -self.y;
+    function ec_negate(mut self) -> Self {
+        return Self { x: self.x, y: -self.y};
     }
     
     // Point addition
-    function ec_add(mut self, q: Point) {
+    function ec_add(mut self, q: Point) -> Self {
         let x_p = self.x;
         let x_q = q.x;
         let y_p = self.y;
@@ -18,16 +18,20 @@ circuit Point {
         let lam = (y_q - y_p) / (x_q - x_p);
         let x_r = lam * lam - x_p - x_q;
         let y_r = lam * (x_p - x_r) - y_p;
-    
-        self.x = x_r;
-        self.y = y_r;
+
+        return Self {x: x_r, y: y_r};
     }
 
-    // For example, we could instantiate a point p and then negate it:
-    // let p: Point = Point {x: 0field, y: 0field};
-    // let minus_p: Point = p.ec_negate();
-    // let q: Point = Point{x: 1field, y: 3field};
-    // let q = p.ec_add(q);
+    //! 111. For example, can you instantiate a point p, and then negate it:
+    //! let p: Point = Point {x: 4,
+    //! y: 5};
+    //! let minus_p = p.ec_negate();
+    //! console.log("minus_p y coordinate is: {}", minus_p.y);
+
+    //! If you have spare time, why not create another point q and add it to p to make r.
+    //! let q = Point {x: 3, y: 4};
+    //! let r = p.ec_add(q);
+    //! console.log("r's x coordinate is {}", r.y);
 
 }
 
@@ -48,7 +52,7 @@ circuit PedersenHash {
     function hash(mut self, bits: [bool; 256]) -> Point {
         for i in 0..256 {
             if bits[i] {
-                self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
+                self.digest = self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
             }
         }
         return self.digest;
@@ -106,6 +110,8 @@ circuit Hangman {
         let hash: Point = hasher.hash([true; 256]);
 
         // Validate the characters in the word.
+        //! 444. We need to check that all the letters in the word are valid. If any
+        //! of them are invalid, we should change the hash to Point{x: 0field, y: 0field};
         for i in 0..word_length {
             if Hangman::valid_char(word[i]) == false {
                 hash = Point{x: 0field, y: 0field};
@@ -162,6 +168,8 @@ circuit Hangman {
         let used_guesses = self.used_guesses;
         let guesses_left = self.guesses_left;
         // If everything is valid, see where the guessed letter is in the word
+        //! 555. The player has chosen a letter to see if it is in the word. What 
+        //! variables should we update? Can you fill in the code?
         if valid {
             for i in 0..word_length {
                 if word[i] == letter {
