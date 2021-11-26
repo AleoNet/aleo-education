@@ -13,11 +13,12 @@ victory: bool = false;
 guess: char = 'b';
 
 [constants]
-parameters: [group; 256] = [1group; 256];
+word_length: u8 = 20;
 
 // Saving these here so we can adjust the actual inputs without losing these
 // selector: bool = true;
 // word: [char; 20] = "aacabababaabaabaacaa";
+
 // commitment_x: field = 0field;
 // commitment_y: field = 0field;
 // revealed: [char; 20] = ['_'; 20];

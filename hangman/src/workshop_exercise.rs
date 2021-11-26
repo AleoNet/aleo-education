@@ -23,9 +23,10 @@ circuit Point {
         self.y = y_r;
     }
 
-    // For example, we could instantiate a point p and then negate it:
-    // let p: Point = Point {x: 0field, y: 0field};
-    // let minus_p: Point = p.ec_negate();
+    // For example, can you instantiate a point p, and then negate it:
+    // let p
+
+    // If you have spare time, why not create another point q and it to p to make r.
 
 }
 
@@ -66,7 +67,6 @@ circuit PedersenHash {
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
     commitment: Point,
-    word_length: u32,
     revealed: [char; 20],
     used_guesses: [char; 10],
     guesses_left: u32,
@@ -87,9 +87,9 @@ circuit Hangman {
         return is_valid_char;
     }
 
-    function new_game(word: [char; 20], const word_length: u32, guesses_left: u32) -> Self {
+    function new_game(word: [char; 20], guesses_left: u32) -> Self {
         // Validate the characters in the word.
-        for i in 0..word_length {
+        for i in 0..20 {
             console.assert(Hangman::valid_char(word[i]) == true);
         }
 
@@ -108,15 +108,9 @@ circuit Hangman {
         // A future release of Leo will have conversions to/from bits.
         let hasher = PedersenHash::new(digest, [x; 256], [y; 256]);
         let hash: Point = hasher.hash([true; 256]);
-
-        // Check that word_length is of a valid size
-        if word_length > 20 {
-            hash = Point{x: 0field, y: 0field};
-        }
     
         return Self { 
             commitment: hash, 
-            word_length: word_length,
             revealed: ['_'; 20], 
             used_guesses: ['_'; 10], 
             guesses_left: guesses_left, 
@@ -127,7 +121,7 @@ circuit Hangman {
     function guess_letter(self, word: [char; 20], letter: char) -> Self {
         // In future we can directly check if the entered word hashes to the same point as the hash in the game.
         // For now, we are just checking the letters are valid
-        for i in 0..self.word_length {
+        for i in 0..20 {
             console.assert(Hangman::valid_char(word[i]) == true);
         }
 
@@ -156,7 +150,7 @@ circuit Hangman {
         let guesses_left = self.guesses_left;
         // If everything is valid, see where the guessed letter is in the word
         if valid {
-            for i in 0..self.word_length {
+            for i in 0..20 {
                 if word[i] == letter {
                     revealed[i] = letter;
                 }
@@ -171,8 +165,7 @@ circuit Hangman {
         }
 
         let commitment = self.commitment;
-        let word_length = self.word_length;
-        return Self {commitment, word_length, revealed, used_guesses, guesses_left, victory};
+        return Self {commitment, revealed, used_guesses, guesses_left, victory};
     }
 
 }
@@ -181,7 +174,6 @@ circuit Hangman {
 function main(
     create_game: bool, 
     word: [char; 20], 
-    const word_length: u32,
     commitment_x: field, 
     commitment_y: field,
     revealed: [char; 20], 
@@ -189,14 +181,14 @@ function main(
     guesses_left: u32, 
     victory: bool, 
     guess: char
-) -> (Point, u32, [char; 20], [char; 10], u32, bool) {
+) -> (field, field, [char; 20], [char; 10], u32, bool) {
     let commitment = Point {x: commitment_x, y: commitment_y };
-    let game = Hangman {commitment, word_length, revealed, used_guesses, guesses_left, victory};
+    let game = Hangman {commitment, revealed, used_guesses, guesses_left, victory};
 
     // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
     // or whether we are guessing a letter in an existing game (create_game = false).
     if create_game {
-        game = Hangman::new_game(word, word_length, guesses_left);
+        game = Hangman::new_game(word, guesses_left);
     } else {
         game = game.guess_letter(word, guess);
     }
@@ -215,8 +207,8 @@ function main(
     word, game.commitment.x, game.commitment.y, game.revealed, game.used_guesses, game.guesses_left, game.victory);
 
     return (
-        commitment,
-        game.word_length,
+        game.commitment.x, 
+        game.commitment.y,
         game.revealed, 
         game.used_guesses, 
         game.guesses_left, 
@@ -226,26 +218,26 @@ function main(
 
 
 
-// @test
-// function  test_main() {
-//     let word = "aacabababaabaabaacaa";
-//     let game = Hangman::new_game(word, 3);
-//     let guess: char = 'b';
+@test
+function  test_main() {
+    let word = "aacabababaabaabaacaa";
+    let game = Hangman::new_game(word, 3);
+    let guess: char = 'b';
 
-//     let check = main(
-//         true, 
-//         word, 
-//         game.commitment.x, 
-//         game.commitment.y,
-//         game.revealed, 
-//         game.used_guesses, 
-//         game.guesses_left, 
-//         game.victory, 
-//         guess
-//     );
-//     let used_guesses = check.3;
-//     console.assert("b_________" == used_guesses);
-// }
+    let check = main(
+        true, 
+        word, 
+        game.commitment.x, 
+        game.commitment.y,
+        game.revealed, 
+        game.used_guesses, 
+        game.guesses_left, 
+        game.victory, 
+        guess
+    );
+    let used_guesses = check.3;
+    console.assert("b_________" == used_guesses);
+}
 
 // @test
 // function  test_main() {
