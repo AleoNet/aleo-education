@@ -21,15 +21,6 @@ circuit Point {
 
         return Self {x: x_r, y: y_r};
     }
-
-    //! 111. For example, can you instantiate a point p, and then negate it:
-    //! let p
-    //! let minus_p
-
-    //! If you have spare time, why not create another point q and add it to p to make r.
-    //! let q
-    //! let r
-
 }
 
 // Circuit implementing the Pedersen hash function.
@@ -49,7 +40,7 @@ circuit PedersenHash {
     function hash(mut self, bits: [bool; 256]) -> Point {
         for i in 0..256 {
             if bits[i] {
-                self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
+                self.digest = self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
             }
         }
         return self.digest;
@@ -68,13 +59,15 @@ circuit PedersenHash {
 /// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
-    //! 222. What variables should we have to represent the state of the game?
-    //! You can use an array of chars, [char; 20], integers such as u32, and booleans.
+    // This is to ensure the player does not change their word
     commitment: Point,
-    // x_2
-    // x_3
-    // x_4
-    // x_5
+    // This is the state of revealed letters
+    revealed: [char; 20],
+    // This is the state of used guesses
+    used_guesses: [char; 10],
+    guesses_left: u32,
+    // This indicates if the game has been won yet
+    victory: bool,
     
 
     // Returns true if `c` is a lowercase English alphabet letter.
@@ -83,13 +76,17 @@ circuit Hangman {
 
         //! 333. Can you fill in the rest of this function? If the entered char `c' is
         //! in `valid_chars', we should set `is_valid_char' to true.
-        // let is_valid_char = false;
-
-        // return is_valid_char;
+        let is_valid_char = false;
+        for i in 0..26 {
+            if c == valid_chars[i] {
+                is_valid_char = true;
+            }
+        }
+        return is_valid_char;
     }
     
 
-    function new_game(word: [char; 20], const word_length: u32, guesses_left: u32) -> Self {
+    function new_game(word: [char; 20], const word_length: u32) -> Self {
         // The `zero` group element for Edwards BLS12
         const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
 
@@ -102,17 +99,14 @@ circuit Hangman {
         let hasher = PedersenHash::new(digest, [x; 256], [y; 256]);
         let hash: Point = hasher.hash([true; 256]);
 
-        // Number of guesses left cannot be greater than the maximum.
-        if guesses_left > 10 {
-            hash = Point{x: 0field, y: 0field};
-        }
-
         // Validate the characters in the word.
         //! 444. We need to check that all the letters in the word are valid. If any
         //! of them are invalid, we should change the hash to Point{x: 0field, y: 0field};
-        // for i in 0..word_length {
-            
-        // }
+        for i in 0..word_length {
+            if Hangman::valid_char(word[i]) == false {
+                hash = Point{x: 0field, y: 0field};
+            }
+        }
 
         // Check that word_length is of a valid size
         if word_length > 20 {
@@ -130,7 +124,7 @@ circuit Hangman {
 
     //! 555. Now that we are guessing a letter, what do you think the input should be?
     //! And the ouput?
-    function guess_letter() ->  {
+    function guess_letter(self, word: [char; 20], const word_length: u32, letter: char) -> Self {
         // Assume the guess has been entered correctly, and adjust this assumption if later checks fail
         let valid = true;
 
@@ -166,7 +160,7 @@ circuit Hangman {
         let used_guesses = self.used_guesses;
         let guesses_left = self.guesses_left;
         // If everything is valid, see where the guessed letter is in the word
-        //! 555. The player has chosen a letter to see if it is in the word. What 
+        //! 666. The player has chosen a letter to see if it is in the word. What 
         //! variables should we update? Can you fill in the code?
         // if valid {
             
@@ -184,31 +178,11 @@ circuit Hangman {
 }
 
 // The 'hangman' main function, which selectively creates a new game or runs the `guess_letter` function. 
-function main(
-    create_game: bool, 
-    word: [char; 20], 
-    const word_length: u32,
-    commitment_x: field, 
-    commitment_y: field,
-    revealed: [char; 20], 
-    used_guesses: [char; 10], 
-    guesses_left: u32, 
-    victory: bool, 
-    guess: char
-) -> (field, field, [char; 20], [char; 10], u32, bool) {
-    let commitment = Point {x: commitment_x, y: commitment_y };
-    let game = Hangman {commitment, revealed, used_guesses, guesses_left, victory};
-
-    // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
-    // or whether we are guessing a letter in an existing game (create_game = false).
-    if create_game {
-        game = Hangman::new_game(word, word_length, guesses_left);
-    } else {
-        game = game.guess_letter(word, word_length, guess);
-    }
-
-    // There is not yet functionality to create and consume records in Leo programs,
-    // so instead we just print all the inputs we will need to update the state of the game
+function main() {
+    let word = "aleons______________";
+    const word_length = 6u32;
+    let new_game = Hangman::new_game(word, word_length);
+    let game = new_game.guess_letter(word, word_length, 'e');
     console.log("
 create_game: bool = false;
 word: [char; 20] = \"{}\";
@@ -219,13 +193,4 @@ used_guesses: [char; 10] = \"{}\";
 guesses_left: u32 = {};
 victory: bool = {};", 
     word, game.commitment.x, game.commitment.y, game.revealed, game.used_guesses, game.guesses_left, game.victory);
-
-    return (
-        game.commitment.x,
-        game.commitment.y,
-        game.revealed, 
-        game.used_guesses, 
-        game.guesses_left, 
-        game.victory
-    );
 }

@@ -1,7 +1,7 @@
 // The program input for hangman/src/main.leo
 [main]
 create_game: bool = true;
-word: [char; 20] = "hello_______________";
+word: [char; 20] = "aleons______________";
 commitment_x: field = 0field;
 commitment_y: field = 0field;
 revealed: [char; 20] = "____________________";
@@ -13,7 +13,7 @@ victory: bool = false;
 guess: char = 'b';
 
 [constants]
-word_length: u32 = 5;
+word_length: u32 = 6;
 
 // Saving these here so we can adjust the actual inputs without losing these
 // create_game: bool = true;

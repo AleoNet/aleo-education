@@ -23,15 +23,12 @@ circuit Point {
     }
 
     //! 111. For example, can you instantiate a point p, and then negate it:
-    //! let p: Point = Point {x: 4,
-    //! y: 5};
-    //! let minus_p = p.ec_negate();
-    //! console.log("minus_p y coordinate is: {}", minus_p.y);
+    //! let p
+    //! let minus_p
 
     //! If you have spare time, why not create another point q and add it to p to make r.
-    //! let q = Point {x: 3, y: 4};
-    //! let r = p.ec_add(q);
-    //! console.log("r's x coordinate is {}", r.y);
+    //! let q
+    //! let r
 
 }
 
@@ -52,7 +49,7 @@ circuit PedersenHash {
     function hash(mut self, bits: [bool; 256]) -> Point {
         for i in 0..256 {
             if bits[i] {
-                self.digest = self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
+                self.digest.ec_add(Point { x: self.x_parameters[i], y: self.y_parameters[i] });
             }
         }
         return self.digest;
@@ -71,30 +68,26 @@ circuit PedersenHash {
 /// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
-    // This is to ensure the player does not change their word
+    //! 222. What variables should we have to represent the state of the game?
+    //! You can use an array of chars, [char; 20], integers such as u32, and booleans.
     commitment: Point,
-    // This is the state of revealed letters
-    revealed: [char; 20],
-    // This is the state of used guesses
-    used_guesses: [char; 10],
-    guesses_left: u32,
-    // This indicates if the game has been won yet
-    victory: bool,
+    // x_2
+    // x_3
+    // x_4
+    // x_5
     
 
     // Returns true if `c` is a lowercase English alphabet letter.
-    // Can you reduce the number of constraints required to implement this function?
     function valid_char(c: char) -> bool {
         const valid_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
-        let is_valid_char = false;
-        for i in 0..26 {
-            if c == valid_chars[i] {
-                is_valid_char = true;
-            }
-        }
-        return is_valid_char;
+        //! 333. Can you fill in the rest of this function? If the entered char `c' is
+        //! in `valid_chars', we should set `is_valid_char' to true.
+        // let is_valid_char = false;
+
+        // return is_valid_char;
     }
+    
 
     function new_game(word: [char; 20], const word_length: u32) -> Self {
         // The `zero` group element for Edwards BLS12
@@ -112,11 +105,9 @@ circuit Hangman {
         // Validate the characters in the word.
         //! 444. We need to check that all the letters in the word are valid. If any
         //! of them are invalid, we should change the hash to Point{x: 0field, y: 0field};
-        for i in 0..word_length {
-            if Hangman::valid_char(word[i]) == false {
-                hash = Point{x: 0field, y: 0field};
-            }
-        }
+        // for i in 0..word_length {
+            
+        // }
 
         // Check that word_length is of a valid size
         if word_length > 20 {
@@ -132,7 +123,9 @@ circuit Hangman {
         };
     }
 
-    function guess_letter(self, word: [char; 20], const word_length: u32, letter: char) -> Self {
+    //! 555. Now that we are guessing a letter, what do you think the input should be?
+    //! And the ouput?
+    function guess_letter() ->  {
         // Assume the guess has been entered correctly, and adjust this assumption if later checks fail
         let valid = true;
 
@@ -170,15 +163,9 @@ circuit Hangman {
         // If everything is valid, see where the guessed letter is in the word
         //! 666. The player has chosen a letter to see if it is in the word. What 
         //! variables should we update? Can you fill in the code?
-        if valid {
-            for i in 0..word_length {
-                if word[i] == letter {
-                    revealed[i] = letter;
-                }
-            }
-            used_guesses[10 - guesses_left] = letter;
-            guesses_left -= 1;
-        }
+        // if valid {
+            
+        // }
 
         let victory = self.victory;
         if revealed == word {
@@ -210,7 +197,7 @@ function main(
     // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
     // or whether we are guessing a letter in an existing game (create_game = false).
     if create_game {
-        game = Hangman::new_game(word, word_length);
+        game = Hangman::new_game(word, word_length, guesses_left);
     } else {
         game = game.guess_letter(word, word_length, guess);
     }
