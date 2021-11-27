@@ -24,11 +24,23 @@ circuit Point {
 }
 
 function main() {
-    //! 111. For example, can you instantiate a point p, and then negate it:
+    //! 111. For example, can you instantiate a point p, and then negate it.
+    //! You will need to use field elements, such as 0field, 1field, 2field, ...:
     let p
     let minus_p
+    console.log("the coordinates are {} and {}", minus_p.x, minus_p.y);
 
     //! If you have spare time, why not create another point q and add it to p to make r.
-    let q
-    let r    
+    // let q
+    // let r    
+    // console.log("r's x coordinate is {} and the y coordinate is {}", r.x, r.y);
 }
+
+
+
+//! What the .in file should be
+//! The program input for hangman/src/main.leo
+//! [main]
+//! 
+//! [registers]
+//! r0: field = 0field;

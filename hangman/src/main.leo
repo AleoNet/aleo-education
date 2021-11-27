@@ -22,16 +22,16 @@ circuit Point {
         return Self {x: x_r, y: y_r};
     }
 
-    //! 111. For example, can you instantiate a point p, and then negate it:
-    //! let p: Point = Point {x: 4,
-    //! y: 5};
+    //! 111. For example, can you instantiate a point p, and then negate it.
+    //! You will need to use field elements, such as 0field, 1field, 2field, ...:
+    //! let p: Point = Point {x: 4, y: 5};
     //! let minus_p = p.ec_negate();
-    //! console.log("minus_p y coordinate is: {}", minus_p.y);
+    //! console.log("the coordinates are {} and {}", minus_p.x, minus_p.y);
 
     //! If you have spare time, why not create another point q and add it to p to make r.
     //! let q = Point {x: 3, y: 4};
     //! let r = p.ec_add(q);
-    //! console.log("r's x coordinate is {}", r.y);
+    //! console.log("r's x coordinate is {} and the y coordinate is {}", r.x, r.y);
 
 }
 
@@ -68,7 +68,7 @@ circuit PedersenHash {
 /// 2. An invalid guess does not use up a guess.
 /// TODO: Explain the purpose of the commitment scheme.
 /// TODO: Explain console statements.
-/// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
+/// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of control structures?
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
     // This is to ensure the player does not change their word
@@ -80,6 +80,12 @@ circuit Hangman {
     guesses_left: u32,
     // This indicates if the game has been won yet
     victory: bool,
+
+    // 222. // The 'hangman' main function, which selectively creates a new game or runs the `guess_letter` function. 
+    // function main() {
+    //     let new_game = Hangman {commitment: Point{x: 1field, y: 1field}, revealed: "aleons______________", used_guesses: ['_'; 10], guesses_left: 10, victory: false};
+    //     console.log("the struct contains {}", new_game);
+    // }
     
 
     // Returns true if `c` is a lowercase English alphabet letter.

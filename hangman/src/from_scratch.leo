@@ -1,3 +1,9 @@
+// This is provided in case you want to challenge yourself and build hangman from scratch.
+// We provide some material, the kind of material that will be readily available in the future.
+// This is an elliptic_curve_point, the Pedersen_hash, and the valid_char fucnciton.
+// See if you can complete the programme
+
+
 // A circuit representing a point along an elliptic curve.
 circuit Point {
     x: field,
@@ -21,6 +27,7 @@ circuit Point {
 
         return Self {x: x_r, y: y_r};
     }
+
 }
 
 // Circuit implementing the Pedersen hash function.
@@ -56,26 +63,17 @@ circuit PedersenHash {
 /// 2. An invalid guess does not use up a guess.
 /// TODO: Explain the purpose of the commitment scheme.
 /// TODO: Explain console statements.
-/// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
+/// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of control structures?
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
-    // This is to ensure the player does not change their word
-    commitment: Point,
-    // This is the state of revealed letters
-    revealed: [char; 20],
-    // This is the state of used guesses
-    used_guesses: [char; 10],
-    guesses_left: u32,
-    // This indicates if the game has been won yet
-    victory: bool,
-    
+
+
 
     // Returns true if `c` is a lowercase English alphabet letter.
+    // Can you reduce the number of constraints required to implement this function?
     function valid_char(c: char) -> bool {
         const valid_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
-        //! 333. Can you fill in the rest of this function? If the entered char `c' is
-        //! in `valid_chars', we should set `is_valid_char' to true.
         let is_valid_char = false;
         for i in 0..26 {
             if c == valid_chars[i] {
@@ -84,48 +82,58 @@ circuit Hangman {
         }
         return is_valid_char;
     }
-    
-
-    function new_game(word: [char; 20], const word_length: u32,) -> Self {
-        // The `zero` group element for Edwards BLS12
-        const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
-
-        // x and y coordiantes corresponding to the `one` group element.
-        const x: field = 7810607721416582242904415504650443951498042435501746664987470571546413371306field;
-        const y: field = 1867362672570137759132108893390349941423731440336755218616442213142473202417field;
-
-        // We're not actually hashing the word here, we're hashing a "bitvector" where all bits are 1
-        // A future release of Leo will have conversions to/from bits.
-        let hasher = PedersenHash::new(digest, [x; 256], [y; 256]);
-        let hash: Point = hasher.hash([true; 256]);
-
-        // Validate the characters in the word.
-        //! 444. We need to check that all the letters in the word are valid. If any
-        //! of them are invalid, we should change the hash to Point{x: 0field, y: 0field};
-        // for i in 0..word_length {
-            
-        // }
-
-        // Check that word_length is of a valid size
-        if word_length > 20 {
-            hash = Point{x: 0field, y: 0field};
-        }
-    
-        return Self { 
-            commitment: hash, 
-            revealed: ['_'; 20], 
-            used_guesses: ['_'; 10], 
-            guesses_left: 10u32, 
-            victory: false
-        };
-    }
 
 }
 
 // The 'hangman' main function, which selectively creates a new game or runs the `guess_letter` function. 
 function main() {
-    let word = "aleons______________";
-    const word_length = 6u32;
-    let new_game = Hangman::new_game(word, word_length);
-    console.log("the game says {}", new_game);
+    
+    
+    return
 }
+
+
+
+
+
+//! This should be used as the .in file
+// // The program input for hangman/src/main.leo
+// [main]
+// create_game: bool = false;
+// word: [char; 20] = "aleons______________";
+// commitment_x: field = 0field;
+// commitment_y: field = 0field;
+// revealed: [char; 20] = "____________________";
+// used_guesses: [char; 10] = "__________";
+// guesses_left: u32 = 10;
+// victory: bool = false;
+
+// // Current guess (never to be const)
+// guess: char = 'a';
+
+// [constants]
+// word_length: u32 = 6;
+
+// // Saving these here so we can adjust the actual inputs without losing these
+// // create_game: bool = true;
+// // word: [char; 20] = "aleons______________";
+// // commitment_x: field = 0field;
+// // commitment_y: field = 0field;
+// // revealed: [char; 20] = ['_'; 20];
+// // used_guesses: [char; 10] = ['_'; 10];
+// // guesses_left: u32 = 10;
+// // victory: bool = false;
+
+// // Current guess (never to be const)
+// // guess: char = 'b';
+
+// // [constants]
+// // word_length: u32 = 6;
+
+// [registers]
+// r0: field = 0field;
+// r1: field = 0field;
+// r2: [char; 20] = ['_'; 20];
+// r3: [char; 10] = ['_'; 10];
+// r4: u32 = 10;
+// r5: bool = false;

@@ -86,4 +86,5 @@ circuit Hangman {
 function main() {
     let tester = Hangman::valid_char('c');
     let tester_2 = Hangman::valid_char('_');
+    console.log("the results are {} and {}", tester, tester_2);
 }

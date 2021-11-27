@@ -178,11 +178,31 @@ circuit Hangman {
 }
 
 // The 'hangman' main function, which selectively creates a new game or runs the `guess_letter` function. 
-function main() {
-    let word = "aleons______________";
-    const word_length = 6u32;
-    let new_game = Hangman::new_game(word, word_length);
-    let game = new_game.guess_letter(word, word_length, 'e');
+function main(
+    create_game: bool, 
+    word: [char; 20], 
+    const word_length: u32,
+    commitment_x: field, 
+    commitment_y: field,
+    revealed: [char; 20], 
+    used_guesses: [char; 10], 
+    guesses_left: u32, 
+    victory: bool, 
+    guess: char
+) -> (field, field, [char; 20], [char; 10], u32, bool) {
+    let commitment = Point {x: commitment_x, y: commitment_y };
+    let game = Hangman {commitment, revealed, used_guesses, guesses_left, victory};
+
+    // The boolean variable `create_game` determines whether we are setting up a game (create_game = true),
+    // or whether we are guessing a letter in an existing game (create_game = false).
+    if create_game {
+        game = Hangman::new_game(word, word_length);
+    } else {
+        game = game.guess_letter(word, word_length, guess);
+    }
+
+    // There is not yet functionality to create and consume records in Leo programs,
+    // so instead we just print all the inputs we will need to update the state of the game
     console.log("
 create_game: bool = false;
 word: [char; 20] = \"{}\";
@@ -193,4 +213,56 @@ used_guesses: [char; 10] = \"{}\";
 guesses_left: u32 = {};
 victory: bool = {};", 
     word, game.commitment.x, game.commitment.y, game.revealed, game.used_guesses, game.guesses_left, game.victory);
+
+    return (
+        game.commitment.x,
+        game.commitment.y,
+        game.revealed, 
+        game.used_guesses, 
+        game.guesses_left, 
+        game.victory
+    );
 }
+
+
+//! this is to be the .in file
+// // The program input for hangman/src/main.leo
+// [main]
+// create_game: bool = false;
+// word: [char; 20] = "aleons______________";
+// commitment_x: field = 0field;
+// commitment_y: field = 0field;
+// revealed: [char; 20] = "____________________";
+// used_guesses: [char; 10] = "__________";
+// guesses_left: u32 = 10;
+// victory: bool = false;
+
+// // Current guess (never to be const)
+// guess: char = 'a';
+
+// [constants]
+// word_length: u32 = 6;
+
+//  // Saving these here so we can adjust the actual inputs without losing these
+//  // create_game: bool = true;
+//  // word: [char; 20] = "aleons______________";
+//  // commitment_x: field = 0field;
+//  // commitment_y: field = 0field;
+//  // revealed: [char; 20] = ['_'; 20];
+//  // used_guesses: [char; 10] = ['_'; 10];
+//  // guesses_left: u32 = 10;
+//  // victory: bool = false;
+
+// Current guess (never to be const)
+// guess: char = 'b';
+
+// [constants]
+// word_length: u32 = 6;
+
+// [registers]
+// r0: field = 0field;
+// r1: field = 0field;
+// r2: [char; 20] = ['_'; 20];
+// r3: [char; 10] = ['_'; 10];
+// r4: u32 = 10;
+// r5: bool = false;
