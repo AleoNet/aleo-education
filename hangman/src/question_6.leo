@@ -243,7 +243,8 @@ victory: bool = {};",
 // [constants]
 // word_length: u32 = 6;
 
-//  // Saving these here so we can adjust the actual inputs without losing these
+//  // Saving these here so we can adjust the actual inputs without losing these 
+//  // (everything below, except the registers should be muted)
 //  // create_game: bool = true;
 //  // word: [char; 20] = "aleons______________";
 //  // commitment_x: field = 0field;
@@ -253,11 +254,11 @@ victory: bool = {};",
 //  // guesses_left: u32 = 10;
 //  // victory: bool = false;
 
-// Current guess (never to be const)
-// guess: char = 'b';
+// // Current guess (never to be const)
+// // guess: char = 'b';
 
-// [constants]
-// word_length: u32 = 6;
+// // [constants]
+// // word_length: u32 = 6;
 
 // [registers]
 // r0: field = 0field;
