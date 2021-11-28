@@ -156,15 +156,15 @@ circuit Hangman {
         }  
         
 
-        let revealed = self.revealed;
-        let used_guesses = self.used_guesses;
-        let guesses_left = self.guesses_left;
+        let revealed: [char; 20] = self.revealed;
+        let used_guesses: [char; 10] = self.used_guesses;
+        let guesses_left: u32 = self.guesses_left;
         // If everything is valid, see where the guessed letter is in the word
         //! 666. The player has chosen a letter to see if it is in the word. What 
         //! variables should we update? Can you fill in the code?
-        // if valid {
+        if valid {
             
-        // }
+        }
 
         let victory = self.victory;
         if revealed == word {

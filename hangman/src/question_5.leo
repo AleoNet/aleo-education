@@ -134,5 +134,4 @@ function main() {
     let word = "aleons______________";
     const word_length = 6u32;
     let new_game = Hangman::new_game(word, word_length);
-    let updated_game = new_game.guess_letter();
 }

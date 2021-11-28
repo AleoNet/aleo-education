@@ -76,9 +76,9 @@ circuit Hangman {
 
         //! 333. Can you fill in the rest of this function? If the entered char `c' is
         //! in `valid_chars', we should set `is_valid_char' to true.
-        // let is_valid_char = false;
+        let is_valid_char = false;
 
-        // return is_valid_char;
+        return is_valid_char;
     }
 }
 

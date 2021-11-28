@@ -62,10 +62,10 @@ circuit Hangman {
     //! 222. What variables should we have to represent the state of the game?
     //! You can use an array of chars, [char; 20], integers such as u32, and booleans.
     commitment: Point,
-    // x_2
-    // x_3
-    // x_4
-    // x_5
+    x_2
+    x_3
+    x_4
+    x_5
     
 }
 
