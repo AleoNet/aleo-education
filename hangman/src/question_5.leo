@@ -54,8 +54,6 @@ circuit PedersenHash {
 /// A player wins if they are able to guess all characters within the allotted number of guesses. Otherwise, they lose.
 /// 1. In our version of Hangman, words and guesses are restricted to the lowercase English alphabet.
 /// 2. An invalid guess does not use up a guess.
-/// TODO: Explain the purpose of the commitment scheme.
-/// TODO: Explain console statements.
 /// Note: Once done with the presentation, ask people to see if they can optimize the number of constraints in the circuit. Maybe they can organize the code in a better way? Maybe better use of constrol structures?
 /// Note: What other functionality can you add? Maybe a lower bound on the number of guesses based on the number of unique characters?
 circuit Hangman {
