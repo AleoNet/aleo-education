@@ -112,24 +112,24 @@ circuit Hangman {
         // We're not actually hashing the word here, we're hashing a "bitvector" where all bits are 1
         // A future release of Leo will have conversions to/from bits.
         let hasher = PedersenHash::new(digest, [x; 256], [y; 256]);
-        let hash: Point = hasher.hash([true; 256]);
+        let commitment: Point = hasher.hash([true; 256]);
 
         // Validate the characters in the word.
         //! 444. We need to check that all the letters in the word are valid. If any
-        //! of them are invalid, we should change the hash to Point{x: 0field, y: 0field};
+        //! of them are invalid, we should change the commitment to Point{x: 0field, y: 0field};
         for i in 0..word_length {
             if Hangman::valid_char(word[i]) == false {
-                hash = Point{x: 0field, y: 0field};
+                commitment = Point{x: 0field, y: 0field};
             }
         }
 
         // Check that word_length is of a valid size
         if word_length > 20 {
-            hash = Point{x: 0field, y: 0field};
+            commitment = Point{x: 0field, y: 0field};
         }
     
         return Self { 
-            commitment: hash, 
+            commitment: commitment, 
             revealed: ['_'; 20], 
             used_guesses: ['_'; 10], 
             guesses_left: 10u32, 

@@ -100,6 +100,8 @@ circuit Hangman {
         // Validate the characters in the word.
         //! 444. We need to check that all the letters in the word are valid. If any
         //! of them are invalid, we should change the commitment to Point{x: 0field, y: 0field};
+        //! To use an implementation of a circuit that doesn't take `self' as an input, you can
+        //! type Hangman::funciton_name()
         for i in 0..word_length {
             
         }
