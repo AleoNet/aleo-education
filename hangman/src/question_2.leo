@@ -21,6 +21,18 @@ circuit Point {
 
         return Self {x: x_r, y: y_r};
     }
+
+    //! 111. For example, can you instantiate a point p, and then negate it.
+    //! You will need to use field elements, such as 0field, 1field, 2field, ...:
+    //! When defining a struct such as point, we do `Point{x_1: something, x_2: something}'
+    // let p = Point{x: 1, y: 1};
+    // let minus_p = p.ec_negate();
+    // console.log("the coordinates are {} and {}", minus_p.x, minus_p.y);
+
+    //! If you have spare time, why not create another point q and add it to p to make r.
+    // let q = Point{x: 5, y: 3};
+    // let r = p.ec_add(q);
+    // console.log("r's x coordinate is {} and the y coordinate is {}", r.x, r.y);
 }
 
 // Circuit implementing the Pedersen hash function.
