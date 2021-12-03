@@ -88,7 +88,7 @@ circuit Hangman {
         // The `zero` group element for Edwards BLS12
         const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
 
-        // x and y coordiantes corresponding to the `one` group element.
+        // x and y coordinates corresponding to the `one` group element.
         const x: field = 7810607721416582242904415504650443951498042435501746664987470571546413371306field;
         const y: field = 1867362672570137759132108893390349941423731440336755218616442213142473202417field;
 
@@ -101,7 +101,7 @@ circuit Hangman {
         //! 444. We need to check that all the letters in the word are valid. If any
         //! of them are invalid, we should change the commitment to Point{x: 0field, y: 0field};
         //! To use an implementation of a circuit that doesn't take `self' as an input, you can
-        //! type Hangman::funciton_name()
+        //! type Hangman::function_name()
         for i in 0..word_length {
             
         }
