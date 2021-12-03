@@ -88,7 +88,7 @@ circuit Hangman {
         // The `zero` group element for Edwards BLS12
         const digest: Point = Point { x: 0field, y: 258664426012969094010652733694893533536393512754914660539884262666720468348340822774968888139573360124440321458177field };
 
-        // x and y coordiantes corresponding to the `one` group element.
+        // x and y coordinates corresponding to the `one` group element.
         const x: field = 7810607721416582242904415504650443951498042435501746664987470571546413371306field;
         const y: field = 1867362672570137759132108893390349941423731440336755218616442213142473202417field;
 
@@ -121,7 +121,7 @@ circuit Hangman {
     }
 
     //! 555. Now that we are guessing a letter, what do you think the input should be?
-    //! And the ouput?
+    //! And the output?
     function guess_letter(self, word: [char; 20], const word_length: u32, letter: char) -> Self {
         // Assume the guess has been entered correctly, and adjust this assumption if later checks fail
         let valid = true;
